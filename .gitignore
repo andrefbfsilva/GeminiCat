@@ -11,6 +11,7 @@ venv/
 
 # Claude Code settings (local only)
 .claude/
+CLAUDE.md
 
 # Preferences
 cat_preferences.json
