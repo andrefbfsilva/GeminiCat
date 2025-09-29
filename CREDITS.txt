@@ -1,0 +1,41 @@
+================================================================================
+GeminiCat HD - Credits and Attributions
+================================================================================
+
+CAT SPRITES
+-----------
+All cat sprites used in this project are from:
+
+  "Cats Pixel Asset Pack" by Pop Shop Packs
+  https://pop-shop-packs.itch.io/cats-pixel-asset-pack
+
+License: Free for commercial use
+- Original sprites: 32x32 pixel art
+- Scaled to 128x128 for this project
+- 4 color variants selected: Orange, Tuxedo (Black), Siamese (Seal Point), Tabby (Grey)
+
+INTEGRATION
+-----------
+- Integration script: pop_shop_integrator.py
+- Extracts walking animation frames from spritesheets
+- Scales using nearest-neighbor for pixel-perfect quality
+- Maintains compatibility with GeminiCat HD animation system
+
+GEMINI AI
+---------
+- Chat functionality powered by Google Gemini AI
+- https://ai.google.dev/
+
+DEVELOPED BY
+------------
+André Silva
+andrefbfsilva@gmail.com
+
+LICENSE
+-------
+See LICENSE file for project license details.
+Cat sprites attribution as per Pop Shop Packs license terms.
+
+================================================================================
+Thank you to Pop Shop Packs for the amazing pixel art assets!
+================================================================================

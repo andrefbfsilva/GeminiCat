@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(npm install)",
+      "Bash(rename:*)",
+      "Bash(move desktop-pet.json package.json)",
+      "Bash(mv:*)",
+      "Bash(npm start)",
+      "Bash(npm install:*)",
+      "Bash(claude --version)",
+      "Bash(where bash)",
+      "Bash(\"C:\\Users\\AndreFilipeSilva\\AppData\\Local\\Programs\\Git\\usr\\bin\\bash.exe\" -c \"claude --version\")",
+      "Bash(node:*)",
+      "Bash(timeout 5 npm start)",
+      "Bash(mkdir:*)",
+      "Bash(find:*)",
+      "Bash(timeout 3 npm start)",
+      "Bash(rustc:*)",
+      "Bash(rm:*)",
+      "Bash(cmd /c:*)",
+      "Bash(pip install:*)",
+      "Bash(timeout:*)",
+      "Bash(python:*)",
+      "Bash(dir:*)",
+      "Bash(ls:*)",
+      "Bash(cp:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo create:*)",
+      "Bash(gh:*)",
+      "Bash(git config:*)",
+      "Bash(powershell:*)",
+      "Bash(taskkill:*)",
+      "Bash(del:*)",
+      "Bash(set GEMINICAT_LOG_LEVEL=DEBUG)"
+    ],
+    "deny": []
+  }
+}

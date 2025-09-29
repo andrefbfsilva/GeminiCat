@@ -1,0 +1,24 @@
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.vscode/
+.idea/
+
+# Preferences
+cat_preferences.json
+
+# Old sprites (obsolete)
+sprites/
+sprite_base_creator.py
+cat_sprites.py
+
+# Temp files
+*.jpg
+*.zip
+*.png
+!sprites_hd/*.png
