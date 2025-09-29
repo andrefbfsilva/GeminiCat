@@ -9,6 +9,9 @@ venv/
 .vscode/
 .idea/
 
+# Claude Code settings (local only)
+.claude/
+
 # Preferences
 cat_preferences.json
 
