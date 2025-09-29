@@ -34,7 +34,9 @@
       "Bash(powershell:*)",
       "Bash(taskkill:*)",
       "Bash(del:*)",
-      "Bash(set GEMINICAT_LOG_LEVEL=DEBUG)"
+      "Bash(set GEMINICAT_LOG_LEVEL=DEBUG)",
+      "Bash(git pull:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }
