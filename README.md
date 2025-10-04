@@ -2,6 +2,12 @@
 
 Assistente virtual com sprites pixel art que conversa com Google Gemini.
 
+## Funcionalidades
+- Chat inteligente com Gemini 2.5 Flash
+- Google Search Grounding automático (ativa quando detecta perguntas sobre preços, lojas, horários, etc.)
+- 4 raças de gatos com animações HD
+- Sistema de preferências guardadas
+
 ## Execução
 Duplo clique em `run-cat.bat` ou:
 ```bash

@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.1.0] - 2025-10-04
+### Adicionado
+- Google Search Grounding no chat Gemini
+- Sistema inteligente de detecção de keywords (85 keywords em 15 categorias)
+- Pontuação automática para ativar pesquisa apenas quando necessário
+- Proteção contra false positives com threshold >= 3
+- Dois modelos Gemini (com/sem search) para poupar rate limit
+- Feedback visual quando pesquisa ativa
+
 ## [3.0.0] - 2025-09-29
 ### Major Refatoração
 - Correção sistemática de 14 bugs críticos

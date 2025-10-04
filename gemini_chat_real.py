@@ -18,10 +18,11 @@ class GeminiCatChat:
     def __init__(self, parent_window):
         self.parent = parent_window
         self.chat_window = None
-        self.model = None
+        self.model_no_search = None
+        self.model_with_search = None
         self.chat_session = None
         self.api_key = self.get_api_key()
-        
+
         # Personalidade do GeminiCat
         self.assistant_personality = """És o GeminiCat, um assistente virtual inteligente que vive no desktop do utilizador.
         Características importantes:
@@ -34,6 +35,63 @@ class GeminiCatChat:
         - Usa português europeu (tu/vós em vez de você, telemóvel em vez de celular, etc.)
         - Respostas curtas e práticas
         - Sem emojis excessivos"""
+
+        # Keywords para detecção de search
+        self.search_keywords = {
+            # 1. Verbos de Pesquisa (9)
+            'procura', 'procurar', 'pesquisa', 'pesquisar',
+            'busca', 'buscar', 'encontra', 'encontrar', 'google',
+
+            # 2. Localização (8)
+            'onde', 'onde posso', 'onde comprar', 'onde encontrar',
+            'que lojas', 'lojas', 'sítios', 'locais',
+
+            # 3. Temporal (7)
+            'atual', 'atualizado', 'recente', 'hoje',
+            'agora', 'últimas', '2025',
+
+            # 4. Disponibilidade (7)
+            'stock', 'disponível', 'em stock', 'há',
+            'tem', 'existe', 'vendem',
+
+            # 5. Comercial/Preços (6)
+            'preço', 'preços', 'quanto custa', 'valor',
+            'orçamento', 'barato',
+
+            # 6. Comparações/Reviews (8)
+            'melhor', 'comparar', 'compara', 'review',
+            'opiniões', 'recomendações', 'qual é', 'diferença',
+
+            # 7. Verificação (5)
+            'verifica', 'confirma', 'check', 'vê se', 'consulta',
+
+            # 8. Informação Geral (5)
+            'notícias', 'novidades', 'informação', 'dados', 'specs',
+
+            # 9. Verificação Indireta (5)
+            'é verdade', 'ouvi dizer', 'dizem que', 'li que', 'sabias que',
+
+            # 10. Horários (5)
+            'horário', 'abre', 'fecha', 'aberto', 'fechado',
+
+            # 11. Contactos (6)
+            'morada', 'endereço', 'contacto', 'telefone', 'email', 'site',
+
+            # 12. Alternativas (5)
+            'alternativa', 'parecido', 'similar', 'substituto', 'equivalente',
+
+            # 13. Promoções (4)
+            'promoção', 'desconto', 'saldos', 'oferta',
+
+            # 14. Compatibilidade (3)
+            'compatível', 'funciona com', 'suporta',
+
+            # 15. Temporal Específico (2)
+            'amanhã', 'semana'
+        }
+
+        self.question_words = {'qual', 'onde', 'quando', 'quanto', 'como', 'quem'}
+        self.narrative_indicators = {'ele', 'ela', 'eles', 'elas', 'estava', 'estavam'}
     
     def get_api_key(self):
         """Obter API key do Gemini"""
@@ -56,30 +114,107 @@ class GeminiCatChat:
         """Configurar Gemini API"""
         if not GEMINI_AVAILABLE:
             return False, "google-generativeai não instalado"
-        
+
         if not self.api_key:
             return False, "API key não configurada"
-        
+
         try:
             genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-2.5-flash')
-            
-            # Iniciar chat com personalidade
-            self.chat_session = self.model.start_chat(history=[
+
+            # Modelo SEM pesquisa (default - poupa rate limit)
+            self.model_no_search = genai.GenerativeModel('gemini-2.5-flash')
+
+            # Modelo COM pesquisa (ativa apenas quando necessário)
+            self.model_with_search = genai.GenerativeModel(
+                'gemini-2.5-flash',
+                tools='google_search_retrieval'
+            )
+
+            # Iniciar chat com modelo sem search (default)
+            self.chat_session = self.model_no_search.start_chat(history=[
                 {
                     "role": "user",
                     "parts": [self.assistant_personality]
                 },
                 {
-                    "role": "model", 
+                    "role": "model",
                     "parts": ["Entendido. Sou o GeminiCat, o teu assistente virtual no desktop. Como posso ajudar-te?"]
                 }
             ])
-            
+
             return True, "Gemini configurado com sucesso"
         except Exception as e:
             return False, f"Erro ao configurar Gemini: {str(e)}"
-    
+
+    def should_activate_search(self, user_message):
+        """
+        Determina se deve ativar Google Search baseado em:
+        - Keywords específicas
+        - Contexto da frase
+        - Sistema de pontuação (threshold >= 3)
+
+        Returns:
+            tuple: (bool: ativar_search, int: score)
+        """
+        score = 0
+        message_lower = user_message.lower()
+        message_words = message_lower.split()
+
+        # PONTOS POSITIVOS
+        # +1 por cada keyword encontrada
+        for keyword in self.search_keywords:
+            if keyword in message_lower:
+                score += 1
+
+        # +2 se tem ponto de interrogação
+        if '?' in user_message:
+            score += 2
+
+        # +1 se tem ponto de exclamação
+        if '!' in user_message:
+            score += 1
+
+        # +2 se começa com palavra interrogativa
+        first_word = message_words[0] if message_words else ''
+        if first_word in self.question_words:
+            score += 2
+
+        # +1 se keyword está nas primeiras 3 palavras
+        for keyword in self.search_keywords:
+            if keyword in ' '.join(message_words[:3]):
+                score += 1
+                break
+
+        # +1 se frase é curta (<50 chars) e tem keyword
+        if len(user_message) < 50 and any(kw in message_lower for kw in self.search_keywords):
+            score += 1
+
+        # PONTOS NEGATIVOS
+        # -2 se contexto narrativo (3ª pessoa)
+        if any(indicator in message_lower for indicator in self.narrative_indicators):
+            score -= 2
+
+        # -1 se frase muito longa SEM interrogação
+        if len(user_message) > 150 and '?' not in user_message:
+            score -= 1
+
+        # -1 se usa tempo passado comum
+        past_tense_indicators = ['estava', 'estive', 'fui', 'era', 'foram']
+        if any(past in message_lower for past in past_tense_indicators):
+            score -= 1
+
+        # -5 se é pergunta sobre estado emocional/pessoal (false positive comum)
+        emotional_patterns = [
+            'como estás', 'como está', 'como vai', 'como te sentes',
+            'estou feliz', 'estou triste', 'estou bem', 'estou mal',
+            'sinto-me', 'sentes-te'
+        ]
+        if any(pattern in message_lower for pattern in emotional_patterns):
+            score -= 5
+
+        # THRESHOLD
+        return (score >= 3, score)
+
     def create_chat_window(self):
         """Criar janela de chat"""
         if self.chat_window and tk.Toplevel.winfo_exists(self.chat_window):
@@ -183,10 +318,34 @@ class GeminiCatChat:
     def get_response(self, message):
         """Obter resposta do Gemini ou simular"""
         try:
+            # Verificar se precisa de search
+            needs_search, score = self.should_activate_search(message)
+
             if self.chat_session and GEMINI_AVAILABLE:
-                # Resposta real do Gemini
-                response = self.chat_session.send_message(message)
-                response_text = response.text
+                if needs_search:
+                    # Mostrar feedback ao utilizador
+                    self.chat_window.after(0, self.add_message, "Sistema",
+                                           f"🔍 Pesquisa ativada (score: {score}) - a consultar informação atualizada do Google...")
+
+                    # Reiniciar chat session com modelo de search
+                    self.chat_session = self.model_with_search.start_chat(history=[
+                        {"role": "user", "parts": [self.assistant_personality]},
+                        {"role": "model", "parts": ["Entendido. Sou o GeminiCat, o teu assistente virtual no desktop. Como posso ajudar-te?"]}
+                    ])
+
+                    # Enviar mensagem com search ativado
+                    response = self.chat_session.send_message(message)
+                    response_text = response.text
+
+                    # Voltar ao modelo sem search para próximas mensagens
+                    self.chat_session = self.model_no_search.start_chat(history=[
+                        {"role": "user", "parts": [self.assistant_personality]},
+                        {"role": "model", "parts": ["Entendido. Sou o GeminiCat, o teu assistente virtual no desktop. Como posso ajudar-te?"]}
+                    ])
+                else:
+                    # Usar modelo SEM search (normal)
+                    response = self.chat_session.send_message(message)
+                    response_text = response.text
             else:
                 # Resposta simulada do assistente
                 time.sleep(1)  # Simular delay
