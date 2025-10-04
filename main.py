@@ -309,16 +309,11 @@ class CatPet:
         
         # CORREÇÃO: Estado gerido pela state machine (não variáveis individuais)
         
-        # Bindings no canvas e na janela
+        # Bindings apenas no canvas (evitar duplicação)
         self.canvas.bind('<Button-1>', self.on_left_click)
         self.canvas.bind('<Button-2>', self.open_breed_selector)
         self.canvas.bind('<Button-3>', self.on_right_click)
         self.canvas.bind('<B1-Motion>', self.on_drag)
-        
-        # Bindings também na janela para garantir detecção (sem Button-2 para evitar duplicação)
-        self.window.bind('<Button-1>', self.on_left_click)
-        self.window.bind('<Button-3>', self.on_right_click)
-        self.window.bind('<B1-Motion>', self.on_drag)
         
         # Subscrever a eventos via EventBus
         event_bus.subscribe("monitor_info_response", self.handle_monitor_info_response)

@@ -5,6 +5,8 @@ Assistente virtual com sprites pixel art que conversa com Google Gemini.
 ## Funcionalidades
 - Chat inteligente com Gemini 2.5 Flash
 - Google Search Grounding automático (ativa quando detecta perguntas sobre preços, lojas, horários, etc.)
+- Links clicáveis no chat (abrem automaticamente no browser)
+- Memória de conversação (lembra contexto entre mensagens)
 - 4 raças de gatos com animações HD
 - Sistema de preferências guardadas
 
